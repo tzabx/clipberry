@@ -7,7 +7,7 @@ setup(
     author="",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
-    python_requires=">=3.10",
+    python_requires=">=3.9",
     install_requires=[
         "PySide6>=6.6.0",
         "aiohttp>=3.9.0",
