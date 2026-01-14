@@ -2,6 +2,7 @@
 
 import json
 import os
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -35,7 +36,7 @@ class AppConfig(BaseModel):
 def get_app_dir() -> Path:
     """Get application data directory."""
     if os.name == "posix":
-        if "darwin" in os.sys.platform:
+        if "darwin" in sys.platform:
             # macOS
             base = Path.home() / "Library" / "Application Support"
         else:

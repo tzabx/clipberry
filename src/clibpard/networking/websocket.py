@@ -7,11 +7,14 @@ from typing import Optional, Callable, Dict, Any
 from pathlib import Path
 
 import websockets
-from websockets.server import serve, WebSocketServerProtocol
-from websockets.client import connect
+from websockets.asyncio.server import serve, ServerConnection
+from websockets.asyncio.client import connect, ClientConnection
 
 from clibpard.storage import ClipboardItem
 from clibpard.security import SecurityManager
+
+# Type aliases for backwards compatibility
+WebSocketServerProtocol = ServerConnection
 
 
 class Message:
@@ -88,7 +91,15 @@ class WebSocketServer:
 
                 # Handle messages
                 async for message in websocket:
-                    await self._handle_message(message, peer_device_id)
+                    # Ensure message is a string
+                    msg_str: Optional[str] = None
+                    if isinstance(message, bytes):
+                        msg_str = message.decode("utf-8")
+                    elif isinstance(message, str):
+                        msg_str = message
+
+                    if msg_str:
+                        await self._handle_message(msg_str, peer_device_id)
 
         except Exception as e:
             print(f"Connection error: {e}")
@@ -97,9 +108,16 @@ class WebSocketServer:
             if peer_device_id:
                 self._connections.pop(peer_device_id, None)
 
-    async def _handle_message(self, message: str, peer_device_id: str):
+    async def _handle_message(self, message: Optional[str], peer_device_id: str):
         """Handle incoming message."""
         try:
+            # Ensure message is a string
+            if isinstance(message, bytes):
+                message = message.decode("utf-8")
+
+            if not message:
+                return
+
             data = json.loads(message)
             msg_type = data.get("type")
 
@@ -134,7 +152,7 @@ class WebSocketServer:
             # Will be saved by storage layer
 
         # Notify handler
-        if self.on_item_received:
+        if self.on_item_received is not None:
             await self.on_item_received(item, peer_device_id)
 
         # Send ACK
@@ -192,7 +210,7 @@ class WebSocketClient:
         self.security = security_manager
         self.on_item_received = on_item_received
 
-        self._connections: Dict[str, websockets.WebSocketClientProtocol] = {}
+        self._connections: Dict[str, ClientConnection] = {}
 
     async def connect_to_device(self, host: str, port: int) -> Optional[str]:
         """Connect to a device. Returns peer device_id if successful."""
@@ -219,13 +237,14 @@ class WebSocketClient:
                         }
                     )
                 )
-
                 self._connections[peer_device_id] = websocket
 
                 # Start message handler
                 asyncio.create_task(self._handle_messages(websocket, peer_device_id))
 
                 return peer_device_id
+
+            return None
 
         except Exception as e:
             print(f"Connection error: {e}")
@@ -263,7 +282,7 @@ class WebSocketClient:
             text_content=data.get("text_content"),
         )
 
-        if self.on_item_received:
+        if self.on_item_received is not None:
             await self.on_item_received(item, peer_device_id)
 
     async def send_item(self, device_id: str, item: ClipboardItem):

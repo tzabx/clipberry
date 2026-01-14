@@ -75,11 +75,11 @@ class ClipboardDatabase:
                 created_at REAL NOT NULL,
                 UNIQUE(content_hash)
             );
-            
+
             CREATE INDEX IF NOT EXISTS idx_timestamp ON clipboard_items(timestamp DESC);
             CREATE INDEX IF NOT EXISTS idx_content_hash ON clipboard_items(content_hash);
             CREATE INDEX IF NOT EXISTS idx_origin_device ON clipboard_items(origin_device_id);
-            
+
             CREATE TABLE IF NOT EXISTS devices (
                 id TEXT PRIMARY KEY,
                 name TEXT NOT NULL,
@@ -89,7 +89,7 @@ class ClipboardDatabase:
                 is_trusted INTEGER NOT NULL,
                 capabilities TEXT NOT NULL
             );
-            
+
             CREATE INDEX IF NOT EXISTS idx_trusted ON devices(is_trusted);
         """
         )
@@ -99,10 +99,12 @@ class ClipboardDatabase:
         try:
             from clibpard.utils import utc_timestamp
 
+            if not self._conn:
+                return False
             await self._conn.execute(
                 """
-                INSERT INTO clipboard_items 
-                (id, type, content_hash, origin_device_id, timestamp, size, 
+                INSERT INTO clipboard_items
+                (id, type, content_hash, origin_device_id, timestamp, size,
                  metadata, text_content, blob_path, created_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
@@ -126,6 +128,8 @@ class ClipboardDatabase:
 
     async def get_item_by_hash(self, content_hash: str) -> Optional[ClipboardItem]:
         """Get item by content hash."""
+        if not self._conn:
+            return None
         cursor = await self._conn.execute(
             """
             SELECT id, type, content_hash, origin_device_id, timestamp, size,
@@ -153,6 +157,8 @@ class ClipboardDatabase:
 
     async def get_recent_items(self, limit: int = 100) -> List[ClipboardItem]:
         """Get recent clipboard items."""
+        if not self._conn:
+            return []
         cursor = await self._conn.execute(
             """
             SELECT id, type, content_hash, origin_device_id, timestamp, size,
@@ -182,10 +188,12 @@ class ClipboardDatabase:
 
     async def add_device(self, device: Device) -> None:
         """Add or update trusted device."""
+        if not self._conn:
+            return
         await self._conn.execute(
             """
             INSERT OR REPLACE INTO devices
-            (id, name, certificate_fingerprint, added_timestamp, 
+            (id, name, certificate_fingerprint, added_timestamp,
              last_seen_timestamp, is_trusted, capabilities)
             VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
@@ -202,6 +210,8 @@ class ClipboardDatabase:
 
     async def get_device(self, device_id: str) -> Optional[Device]:
         """Get device by ID."""
+        if not self._conn:
+            return None
         cursor = await self._conn.execute(
             """
             SELECT id, name, certificate_fingerprint, added_timestamp,
@@ -227,6 +237,8 @@ class ClipboardDatabase:
 
     async def get_all_devices(self) -> List[Device]:
         """Get all devices."""
+        if not self._conn:
+            return []
         cursor = await self._conn.execute(
             """
             SELECT id, name, certificate_fingerprint, added_timestamp,
@@ -252,6 +264,8 @@ class ClipboardDatabase:
 
     async def update_device_last_seen(self, device_id: str, timestamp: float):
         """Update device last seen timestamp."""
+        if not self._conn:
+            return
         await self._conn.execute(
             "UPDATE devices SET last_seen_timestamp = ? WHERE id = ?",
             (timestamp, device_id),
@@ -259,6 +273,8 @@ class ClipboardDatabase:
 
     async def revoke_device(self, device_id: str):
         """Revoke trust for a device."""
+        if not self._conn:
+            return
         await self._conn.execute(
             "UPDATE devices SET is_trusted = 0 WHERE id = ?", (device_id,)
         )

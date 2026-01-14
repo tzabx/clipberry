@@ -97,7 +97,7 @@ class ClipboardTab(QWidget):
 
         # Header
         header = QLabel("Recent Clipboard Items")
-        header.setFont(QFont("", 14, QFont.Bold))
+        header.setFont(QFont("", 14, QFont.Weight.Bold))
         layout.addWidget(header)
 
         # Items list
@@ -141,7 +141,7 @@ class DevicesTab(QWidget):
         # Header
         header_layout = QHBoxLayout()
         header = QLabel("Paired Devices")
-        header.setFont(QFont("", 14, QFont.Bold))
+        header.setFont(QFont("", 14, QFont.Weight.Bold))
         header_layout.addWidget(header)
 
         header_layout.addStretch()
@@ -217,7 +217,7 @@ class ActivityTab(QWidget):
 
         # Header
         header = QLabel("Activity Log")
-        header.setFont(QFont("", 14, QFont.Bold))
+        header.setFont(QFont("", 14, QFont.Weight.Bold))
         layout.addWidget(header)
 
         # Log view
@@ -346,8 +346,8 @@ class GenerateTokenDialog(QDialog):
 
         # Token display
         token_label = QLabel(token)
-        token_label.setFont(QFont("Courier", 24, QFont.Bold))
-        token_label.setAlignment(Qt.AlignCenter)
+        token_label.setFont(QFont("Courier", 24, QFont.Weight.Bold))
+        token_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         token_label.setStyleSheet(
             "padding: 20px; background: #f0f0f0; border-radius: 5px;"
         )
@@ -513,10 +513,10 @@ class MainWindow(QMainWindow):
             self,
             "Revoke Device",
             "Are you sure you want to revoke trust for this device?",
-            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
         )
 
-        if reply == QMessageBox.Yes:
+        if reply == QMessageBox.StandardButton.Yes:
             import asyncio
 
             asyncio.create_task(self._revoke_device(device_id))

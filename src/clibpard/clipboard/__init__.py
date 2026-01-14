@@ -4,8 +4,8 @@ import asyncio
 import io
 from pathlib import Path
 from typing import Optional, Callable, Awaitable
+
 from PySide6.QtGui import QClipboard, QImage
-from PySide6.QtWidgets import QApplication
 
 from clibpard.utils import compute_content_hash, generate_device_id, utc_timestamp
 from clibpard.storage import ClipboardItem
@@ -28,15 +28,18 @@ class ClipboardMonitor:
 
     def start(self, callback: Callable[[ClipboardItem], Awaitable[None]]):
         """Start monitoring clipboard."""
+        from PySide6.QtWidgets import QApplication
+
         app = QApplication.instance()
         if not app:
             raise RuntimeError("QApplication must be created first")
 
-        self._clipboard = app.clipboard()
+        self._clipboard = app.clipboard()  # type: ignore[attr-defined]
         self._callback = callback
 
         # Connect to clipboard changed signal
-        self._clipboard.dataChanged.connect(self._on_clipboard_changed)
+        if self._clipboard:
+            self._clipboard.dataChanged.connect(self._on_clipboard_changed)
 
         # Also poll periodically as backup
         self._timer_task = asyncio.create_task(self._poll_clipboard())
@@ -122,10 +125,22 @@ class ClipboardMonitor:
 
     async def _capture_image(self, image: QImage):
         """Capture image from clipboard."""
-        # Convert to PNG bytes
-        buffer = io.BytesIO()
-        image.save(buffer, "PNG")
-        content = buffer.getvalue()
+        # Convert to PNG bytes using a temporary file
+        import tempfile
+
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            image.save(temp_path, b"PNG")
+            with open(temp_path, "rb") as f:
+                content = f.read()
+        finally:
+            import os
+
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+
         content_hash = compute_content_hash(content)
 
         # Check if duplicate

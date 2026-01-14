@@ -41,8 +41,9 @@ def format_timestamp(ts: float) -> str:
 
 def format_size(size: int) -> str:
     """Format byte size for display."""
+    size_float = float(size)
     for unit in ["B", "KB", "MB", "GB"]:
-        if size < 1024.0:
-            return f"{size:.1f} {unit}"
-        size /= 1024.0
-    return f"{size:.1f} TB"
+        if size_float < 1024.0:
+            return f"{size_float:.1f} {unit}"
+        size_float /= 1024.0
+    return f"{size_float:.1f} TB"

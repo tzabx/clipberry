@@ -92,6 +92,7 @@ build_executable() {
         pyinstaller \
             --onefile \
             --windowed \
+            --noconfirm \
             --name clibpard \
             --add-data "src/clibpard:clibpard" \
             src/clibpard/main.py
@@ -100,6 +101,7 @@ build_executable() {
         pyinstaller \
             --onefile \
             --windowed \
+            --noconfirm \
             --name clibpard \
             --add-data "src/clibpard:clibpard" \
             src/clibpard/main.py

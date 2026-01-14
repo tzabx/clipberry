@@ -84,38 +84,41 @@ class DiscoveryService:
         if state_change == ServiceStateChange.Added:
             # Use AsyncServiceInfo for async event loop compatibility
             info = AsyncServiceInfo(service_type, name)
-            await info.async_request(self._azc.zeroconf, 3000)  # 3 second timeout
-            
-            if info and info.addresses:
-                # Parse device info
-                props = {}
-                if info.properties:
-                    for key, value in info.properties.items():
-                        props[key.decode()] = value.decode()
+            if self._azc:
+                await info.async_request(self._azc.zeroconf, 3000)  # 3 second timeout
 
-                device_id = props.get("device_id")
-                device_name = props.get("device_name", name)
+                if info and info.addresses:
+                    # Parse device info
+                    props = {}
+                    if info.properties:
+                        for key, value in info.properties.items():
+                            props[key.decode() if isinstance(key, bytes) else key] = (
+                                value.decode() if isinstance(value, bytes) else value
+                            )
 
-                # Skip ourselves
-                if device_id == self.device_id:
-                    return
+                    device_id = props.get("device_id")
+                    device_name = props.get("device_name", name)
 
-                # Get IP address
-                if info.addresses:
-                    ip = socket.inet_ntoa(info.addresses[0])
-                    port = info.port
+                    # Skip ourselves and missing device_id
+                    if not device_id or device_id == self.device_id:
+                        return
 
-                    device_info = {
-                        "device_id": device_id,
-                        "device_name": device_name,
-                        "ip": ip,
-                        "port": port,
-                    }
+                    # Get IP address
+                    if info.addresses:
+                        ip = socket.inet_ntoa(info.addresses[0])
+                        port = info.port
 
-                    self._discovered_devices[device_id] = device_info
+                        device_info = {
+                            "device_id": device_id,
+                            "device_name": device_name,
+                            "ip": ip,
+                            "port": port,
+                        }
 
-                    if self._callback:
-                        await self._callback(device_info)
+                        self._discovered_devices[device_id] = device_info
+
+                        if self._callback:
+                            await self._callback(device_info)
 
         elif state_change == ServiceStateChange.Removed:
             # Device went offline

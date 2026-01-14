@@ -107,14 +107,26 @@ def verify_signature(
     """Verify signature with certificate public key."""
     try:
         public_key = certificate.public_key()
-        public_key.verify(
-            signature,
-            data,
-            padding.PSS(
-                mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH
-            ),
-            hashes.SHA256(),
-        )
+
+        # Check key type and use appropriate verification method
+        from cryptography.hazmat.primitives.asymmetric import rsa, ed25519
+
+        if isinstance(public_key, rsa.RSAPublicKey):
+            public_key.verify(
+                signature,
+                data,
+                padding.PSS(
+                    mgf=padding.MGF1(hashes.SHA256()),
+                    salt_length=padding.PSS.MAX_LENGTH,
+                ),
+                hashes.SHA256(),
+            )
+        elif isinstance(public_key, ed25519.Ed25519PublicKey):
+            public_key.verify(signature, data)
+        else:
+            # Unsupported key type
+            return False
+
         return True
     except Exception:
         return False

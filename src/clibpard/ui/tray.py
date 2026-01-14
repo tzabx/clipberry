@@ -93,4 +93,8 @@ class SystemTray(QObject):
 
     def show_message(self, title: str, message: str):
         """Show tray notification."""
-        self.tray_icon.showMessage(title, message, QSystemTrayIcon.Information, 3000)
+        from PySide6.QtWidgets import QSystemTrayIcon as TrayIcon
+
+        self.tray_icon.showMessage(
+            title, message, TrayIcon.MessageIcon.Information, 3000
+        )
