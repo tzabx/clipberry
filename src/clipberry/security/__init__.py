@@ -31,7 +31,7 @@ def generate_self_signed_cert(
     subject = issuer = x509.Name(
         [
             x509.NameAttribute(NameOID.COMMON_NAME, device_name),
-            x509.NameAttribute(NameOID.ORGANIZATION_NAME, "Clibpard"),
+            x509.NameAttribute(NameOID.ORGANIZATION_NAME, "Clipberry"),
             x509.NameAttribute(NameOID.ORGANIZATIONAL_UNIT_NAME, device_id),
         ]
     )

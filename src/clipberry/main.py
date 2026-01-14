@@ -9,10 +9,10 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QTimer
 import qasync
 
-from clibpard.utils.config import load_config, save_config
-from clibpard.core import ClipboardSyncService
-from clibpard.ui import MainWindow
-from clibpard.ui.tray import SystemTray
+from clipberry.utils.config import load_config, save_config
+from clipberry.core import ClipboardSyncService
+from clipberry.ui import MainWindow
+from clipberry.ui.tray import SystemTray
 
 
 class Application:
@@ -27,8 +27,8 @@ class Application:
         if not self.qapp:
             self.qapp = QApplication(sys.argv)
 
-        self.qapp.setApplicationName("Clibpard")
-        self.qapp.setOrganizationName("Clibpard")
+        self.qapp.setApplicationName("Clipberry")
+        self.qapp.setOrganizationName("Clipberry")
 
         # Create service
         self.service = ClipboardSyncService(self.config)
@@ -55,7 +55,7 @@ class Application:
 
     async def start(self):
         """Start the application."""
-        print("Starting Clibpard...")
+        print("Starting Clipberry...")
 
         # Start service
         await self.service.start()
@@ -70,14 +70,14 @@ class Application:
         if self.config.show_system_tray:
             self.system_tray.show()
             self.system_tray.show_message(
-                "Clibpard Started", "Clipboard sync is running"
+                "Clipberry Started", "Clipboard sync is running"
             )
 
-        print("Clibpard started successfully!")
+        print("Clipberry started successfully!")
 
     async def stop(self):
         """Stop the application."""
-        print("Stopping Clibpard...")
+        print("Stopping Clipberry...")
 
         # Save config
         save_config(self.config)
@@ -88,7 +88,7 @@ class Application:
         # Hide tray
         self.system_tray.hide()
 
-        print("Clibpard stopped")
+        print("Clipberry stopped")
 
     def _show_window(self):
         """Show main window."""
@@ -102,7 +102,7 @@ class Application:
         self.system_tray.update_sync_state(enabled)
 
         message = "Sync enabled" if enabled else "Sync disabled"
-        self.system_tray.show_message("Clibpard", message)
+        self.system_tray.show_message("Clipberry", message)
 
     def _copy_last_item(self):
         """Copy last clipboard item."""

@@ -5,8 +5,8 @@ import pytest_asyncio
 import tempfile
 from pathlib import Path
 
-from clibpard.storage import ClipboardDatabase, ClipboardItem, Device
-from clibpard.utils import generate_device_id, compute_content_hash, utc_timestamp
+from clipberry.storage import ClipboardDatabase, ClipboardItem, Device
+from clipberry.utils import generate_device_id, compute_content_hash, utc_timestamp
 
 
 @pytest_asyncio.fixture

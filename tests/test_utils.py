@@ -1,7 +1,7 @@
 """Unit tests for utils."""
 
 import pytest
-from clibpard.utils import (
+from clipberry.utils import (
     generate_device_id,
     generate_pairing_token,
     compute_content_hash,

@@ -4,13 +4,13 @@ import asyncio
 from pathlib import Path
 from typing import Optional
 
-from clibpard.clipboard import ClipboardMonitor
-from clibpard.storage import ClipboardDatabase, ClipboardItem, Device
-from clibpard.security import SecurityManager
-from clibpard.security.pairing import PairingManager, PairingWorkflow
-from clibpard.networking import DiscoveryService, WebSocketServer, WebSocketClient
-from clibpard.utils.config import AppConfig
-from clibpard.utils import utc_timestamp
+from clipberry.clipboard import ClipboardMonitor
+from clipberry.storage import ClipboardDatabase, ClipboardItem, Device
+from clipberry.security import SecurityManager
+from clipberry.security.pairing import PairingManager, PairingWorkflow
+from clipberry.networking import DiscoveryService, WebSocketServer, WebSocketClient
+from clipberry.utils.config import AppConfig
+from clipberry.utils import utc_timestamp
 
 
 class ClipboardSyncService:
@@ -54,7 +54,7 @@ class ClipboardSyncService:
         if self._running:
             return
 
-        print(f"Starting Clibpard service for device: {self.config.device_name}")
+        print(f"Starting Clipberry service for device: {self.config.device_name}")
 
         # Initialize security
         self.security.initialize()

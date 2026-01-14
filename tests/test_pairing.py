@@ -3,8 +3,8 @@
 import pytest
 import asyncio
 
-from clibpard.security.pairing import PairingManager, PairingToken
-from clibpard.utils import generate_device_id
+from clipberry.security.pairing import PairingManager, PairingToken
+from clipberry.utils import generate_device_id
 
 
 @pytest.mark.asyncio

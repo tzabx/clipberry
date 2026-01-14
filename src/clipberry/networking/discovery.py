@@ -7,7 +7,7 @@ from zeroconf import ServiceInfo, Zeroconf
 from zeroconf.asyncio import AsyncServiceBrowser, AsyncZeroconf, AsyncServiceInfo
 
 
-SERVICE_TYPE = "_clibpard._tcp.local."
+SERVICE_TYPE = "_clipberry._tcp.local."
 
 
 class DiscoveryService:

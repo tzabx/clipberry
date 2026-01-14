@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="clibpard",
+    name="clipberry",
     version="0.1.0",
     description="Cross-platform clipboard sync application",
     author="",
@@ -20,7 +20,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "clibpard=clibpard.main:main",
+            "clipberry=clipberry.main:main",
         ],
     },
 )

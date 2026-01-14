@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# Quick test script for Clibpard
+# Quick test script for Clipberry
 
 echo "================================"
-echo "Clibpard Quick Test"
+echo "Clipberry Quick Test"
 echo "================================"
 echo ""
 
 # Check if built
-if [ ! -f "dist/clibpard" ]; then
+if [ ! -f "dist/clipberry" ]; then
     echo "❌ Executable not found. Building..."
     ./build.sh build
     if [ $? -ne 0 ]; then
@@ -17,7 +17,7 @@ if [ ! -f "dist/clibpard" ]; then
     fi
 fi
 
-echo "✅ Executable found: dist/clibpard"
+echo "✅ Executable found: dist/clipberry"
 echo ""
 
 # Run tests
@@ -30,7 +30,7 @@ if [ $? -eq 0 ]; then
     echo "✅ All tests passed!"
     echo ""
     echo "To run the application:"
-    echo "  ./dist/clibpard"
+    echo "  ./dist/clipberry"
     echo ""
     echo "Or install it:"
     echo "  ./install.sh"

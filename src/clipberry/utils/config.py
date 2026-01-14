@@ -48,14 +48,14 @@ def get_app_dir() -> Path:
         # Windows (future support)
         base = Path(os.environ.get("APPDATA", Path.home() / "AppData" / "Roaming"))
 
-    app_dir = base / "clibpard"
+    app_dir = base / "clipberry"
     app_dir.mkdir(parents=True, exist_ok=True)
     return app_dir
 
 
 def load_config() -> AppConfig:
     """Load or create application configuration."""
-    from clibpard.utils import generate_device_id
+    from clipberry.utils import generate_device_id
     import socket
 
     app_dir = get_app_dir()

@@ -1,1 +1,1 @@
-"""Unit tests for Clibpard."""
+"""Unit tests for Clipberry."""

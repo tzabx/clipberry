@@ -1,10 +1,10 @@
 #!/bin/bash
-# Build script for Clibpard
+# Build script for Clipberry
 
 set -e
 
 echo "================================"
-echo "Clibpard Build Script"
+echo "Clipberry Build Script"
 echo "================================"
 
 # Detect platform
@@ -78,7 +78,7 @@ check_code() {
     
     echo ""
     echo "Type checking with mypy..."
-    mypy src/clibpard/ --ignore-missing-imports || true
+    mypy src/clipberry/ --ignore-missing-imports || true
 }
 
 # Function to build standalone executable
@@ -93,18 +93,18 @@ build_executable() {
             --onefile \
             --windowed \
             --noconfirm \
-            --name clibpard \
-            --add-data "src/clibpard:clibpard" \
-            src/clibpard/main.py
+            --name clipberry \
+            --add-data "src/clipberry:clipberry" \
+            src/clipberry/main.py
     else
         # Linux
         pyinstaller \
             --onefile \
             --windowed \
             --noconfirm \
-            --name clibpard \
-            --add-data "src/clibpard:clibpard" \
-            src/clibpard/main.py
+            --name clipberry \
+            --add-data "src/clipberry:clipberry" \
+            src/clipberry/main.py
     fi
     
     echo "Executable created in dist/"
@@ -134,13 +134,13 @@ create_package() {
         # Create DMG (requires create-dmg tool)
         if command -v create-dmg &> /dev/null; then
             create-dmg \
-                --volname "Clibpard" \
+                --volname "Clipberry" \
                 --window-pos 200 120 \
                 --window-size 800 400 \
                 --icon-size 100 \
                 --app-drop-link 600 185 \
-                "$DIST_DIR/Clibpard.dmg" \
-                "dist/Clibpard.app"
+                "$DIST_DIR/Clipberry.dmg" \
+                "dist/Clipberry.app"
         fi
     else
         # Linux - create AppImage or deb package
@@ -148,7 +148,7 @@ create_package() {
         
         # For now, just create a tarball
         cd dist
-        tar czf clibpard-linux-x86_64.tar.gz clibpard
+        tar czf clipberry-linux-x86_64.tar.gz clipberry
         cd ..
     fi
 }

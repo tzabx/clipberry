@@ -97,7 +97,7 @@ class ClipboardDatabase:
     async def add_item(self, item: ClipboardItem) -> bool:
         """Add clipboard item. Returns False if duplicate."""
         try:
-            from clibpard.utils import utc_timestamp
+            from clipberry.utils import utc_timestamp
 
             if not self._conn:
                 return False
@@ -278,3 +278,9 @@ class ClipboardDatabase:
         await self._conn.execute(
             "UPDATE devices SET is_trusted = 0 WHERE id = ?", (device_id,)
         )
+
+    async def clear_clipboard_history(self):
+        """Clear all clipboard items from database."""
+        if not self._conn:
+            return
+        await self._conn.execute("DELETE FROM clipboard_items")

@@ -4,7 +4,7 @@ import pytest
 import tempfile
 from pathlib import Path
 
-from clibpard.security import (
+from clipberry.security import (
     generate_self_signed_cert,
     load_certificate,
     load_private_key,
@@ -13,7 +13,7 @@ from clibpard.security import (
     verify_signature,
     SecurityManager,
 )
-from clibpard.utils import generate_device_id
+from clipberry.utils import generate_device_id
 
 
 def test_generate_self_signed_cert():

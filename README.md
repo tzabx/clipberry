@@ -1,4 +1,4 @@
-# Clibpard - Cross-Platform Clipboard Sync
+# Clipberry - Cross-Platform Clipboard Sync
 
 Securely synchronize clipboard content (text, images, files) between trusted devices on Linux and macOS.
 
@@ -15,7 +15,7 @@ Securely synchronize clipboard content (text, images, files) between trusted dev
 ## Architecture
 
 ```
-src/clibpard/
+src/clipberry/
 ├── core/           # Core service daemon
 ├── networking/     # WebSocket + TLS + discovery
 ├── clipboard/      # Clipboard monitoring
@@ -36,10 +36,10 @@ python setup.py develop
 
 ```bash
 # Start the application
-clibpard
+clipberry
 
 # Or run from source
-python -m clibpard.main
+python -m clipberry.main
 ```
 
 ## Security Model

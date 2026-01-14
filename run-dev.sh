@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Clibpard Development Runner
+# Clipberry Development Runner
 # Run the application directly from source without installing
 
 set -e
@@ -12,7 +12,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 echo "================================"
-echo "Clibpard Development Runner"
+echo "Clipberry Development Runner"
 echo "================================"
 echo ""
 
@@ -31,7 +31,7 @@ echo -e "${GREEN}✓${NC} Activating virtual environment..."
 source venv/bin/activate
 
 # Check if package is installed in development mode
-if ! python -c "import clibpard" 2>/dev/null; then
+if ! python -c "import clipberry" 2>/dev/null; then
     echo -e "${YELLOW}⚠${NC}  Package not installed in development mode. Installing..."
     pip install -e . > /dev/null
 fi
@@ -83,7 +83,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Display info
-echo "Starting Clibpard..."
+echo "Starting Clipberry..."
 echo "Mode: Development"
 if [ -n "$VERBOSE" ]; then
     echo "Verbose: Enabled"
@@ -98,4 +98,4 @@ echo "================================"
 echo ""
 
 # Run the application
-python -m clibpard.main $VERBOSE $DEBUG $CONFIG
+python -m clipberry.main $VERBOSE $DEBUG $CONFIG

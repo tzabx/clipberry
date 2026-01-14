@@ -24,8 +24,8 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, QTimer, Signal, QSize
 from PySide6.QtGui import QIcon, QPixmap, QAction, QFont
 
-from clibpard.storage import ClipboardItem, Device
-from clibpard.utils import format_timestamp, format_size
+from clipberry.storage import ClipboardItem, Device
+from clipberry.utils import format_timestamp, format_size
 
 
 class ClipboardItemWidget(QWidget):
@@ -88,6 +88,7 @@ class ClipboardTab(QWidget):
     """Clipboard items tab."""
 
     copy_requested = Signal(ClipboardItem)
+    clear_requested = Signal()
 
     def __init__(self):
         super().__init__()
@@ -96,10 +97,19 @@ class ClipboardTab(QWidget):
     def _init_ui(self):
         layout = QVBoxLayout()
 
-        # Header
+        # Header with clear button
+        header_layout = QHBoxLayout()
         header = QLabel("Recent Clipboard Items")
         header.setFont(QFont("", 14, QFont.Weight.Bold))
-        layout.addWidget(header)
+        header_layout.addWidget(header)
+
+        header_layout.addStretch()
+
+        clear_btn = QPushButton("Clear History")
+        clear_btn.clicked.connect(self.clear_requested.emit)
+        header_layout.addWidget(clear_btn)
+
+        layout.addLayout(header_layout)
 
         # Items list
         self.items_list = QListWidget()
@@ -172,7 +182,7 @@ class DevicesTab(QWidget):
         """Update displayed devices."""
         self.devices_table.setRowCount(len(devices))
 
-        from clibpard.utils import utc_timestamp
+        from clipberry.utils import utc_timestamp
 
         current_time = utc_timestamp()
 
@@ -235,7 +245,7 @@ class ActivityTab(QWidget):
 
     def add_log_entry(self, message: str):
         """Add entry to activity log."""
-        from clibpard.utils import utc_now
+        from clipberry.utils import utc_now
 
         timestamp = utc_now().strftime("%H:%M:%S")
         self.log_view.append(f"[{timestamp}] {message}")
@@ -368,7 +378,7 @@ class MainWindow(QMainWindow):
     def __init__(self, service):
         super().__init__()
         self.service = service
-        self.setWindowTitle("Clibpard - Clipboard Sync")
+        self.setWindowTitle("Clipberry - Clipboard Sync")
         self.resize(800, 600)
 
         # Flag to prevent concurrent updates
@@ -392,6 +402,7 @@ class MainWindow(QMainWindow):
 
         self.clipboard_tab = ClipboardTab()
         self.clipboard_tab.copy_requested.connect(self._on_copy_item)
+        self.clipboard_tab.clear_requested.connect(self._on_clear_history)
         self.tabs.addTab(self.clipboard_tab, "Clipboard")
 
         self.devices_tab = DevicesTab()
@@ -483,6 +494,32 @@ class MainWindow(QMainWindow):
             self.service.clipboard_monitor.set_clipboard_image(Path(item.blob_path))
             self.activity_tab.add_log_entry(f"Copied image item to clipboard")
 
+    def _on_clear_history(self):
+        """Handle clear clipboard history request."""
+        reply = QMessageBox.question(
+            self,
+            "Clear History",
+            "Are you sure you want to clear all clipboard history?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+
+        if reply == QMessageBox.Yes:
+            # Clear in background
+            import asyncio
+
+            asyncio.ensure_future(self._clear_history_async())
+
+    async def _clear_history_async(self):
+        """Clear clipboard history asynchronously."""
+        try:
+            await self.service.storage.clear_clipboard_history()
+            self.activity_tab.add_log_entry("🗑️ Cleared clipboard history")
+            # Refresh the clipboard tab with empty list
+            self.clipboard_tab.update_items([], {})
+        except Exception as e:
+            self.activity_tab.add_log_entry(f"❌ Failed to clear history: {e}")
+
     def _on_add_device(self):
         """Handle add device request."""
         dialog = AddDeviceDialog(self)
@@ -555,9 +592,9 @@ class MainWindow(QMainWindow):
         """Show about dialog."""
         QMessageBox.about(
             self,
-            "About Clibpard",
-            "Clibpard v0.1.0\n\n"
+            "About Clipberry",
+            "Clipberry v0.1.0\n\n"
             "Cross-platform clipboard synchronization\n"
             "Secure peer-to-peer sync with TLS encryption\n\n"
-            "https://github.com/clibpard/clibpard",
+            "https://github.com/tzabx/clipberry",
         )

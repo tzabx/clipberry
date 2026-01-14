@@ -7,8 +7,8 @@ from typing import Optional, Callable, Awaitable
 
 from PySide6.QtGui import QClipboard, QImage
 
-from clibpard.utils import compute_content_hash, generate_device_id, utc_timestamp
-from clibpard.storage import ClipboardItem
+from clipberry.utils import compute_content_hash, generate_device_id, utc_timestamp
+from clipberry.storage import ClipboardItem
 
 
 class ClipboardMonitor:

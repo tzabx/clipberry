@@ -20,11 +20,11 @@ class SystemTray(QObject):
 
         # Create tray icon
         self.tray_icon = QSystemTrayIcon()
-        self.tray_icon.setToolTip("Clibpard - Clipboard Sync")
+        self.tray_icon.setToolTip("Clipberry - Clipboard Sync")
 
         # TODO: Add proper icon
         # For now, use default
-        # icon = QIcon(":/icons/clibpard.png")
+        # icon = QIcon(":/icons/clipberry.png")
         # self.tray_icon.setIcon(icon)
 
         # Create menu

@@ -10,8 +10,8 @@ import websockets
 from websockets.asyncio.server import serve, ServerConnection
 from websockets.asyncio.client import connect, ClientConnection
 
-from clibpard.storage import ClipboardItem
-from clibpard.security import SecurityManager
+from clipberry.storage import ClipboardItem
+from clipberry.security import SecurityManager
 
 # Type aliases for backwards compatibility
 WebSocketServerProtocol = ServerConnection

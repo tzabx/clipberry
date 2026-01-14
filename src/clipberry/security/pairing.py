@@ -4,7 +4,7 @@ import asyncio
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Optional, Dict
-from clibpard.utils import generate_pairing_token, utc_now
+from clipberry.utils import generate_pairing_token, utc_now
 
 
 @dataclass
@@ -146,8 +146,8 @@ class PairingWorkflow:
             return False
 
         # Store device
-        from clibpard.storage import Device
-        from clibpard.utils import utc_timestamp
+        from clipberry.storage import Device
+        from clipberry.utils import utc_timestamp
 
         device = Device(
             id=peer_device_id,
@@ -193,8 +193,8 @@ class PairingWorkflow:
         Client completes pairing after successful connection.
         Stores peer device.
         """
-        from clibpard.storage import Device
-        from clibpard.utils import utc_timestamp
+        from clipberry.storage import Device
+        from clipberry.utils import utc_timestamp
 
         device = Device(
             id=peer_device_id,
