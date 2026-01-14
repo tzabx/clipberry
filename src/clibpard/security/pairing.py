@@ -135,10 +135,12 @@ class PairingWorkflow:
         Host completes pairing after receiving client connection.
         Validates token and stores peer device.
         """
-        print(f"\n🔗 Pairing request received from '{peer_device_name}' ({peer_device_id[:8]}...)")
+        print(
+            f"\n🔗 Pairing request received from '{peer_device_name}' ({peer_device_id[:8]}...)"
+        )
         print(f"   Token: {token}")
         print(f"   Certificate fingerprint: {peer_cert_fingerprint[:16]}...")
-        
+
         if not self.pairing_manager.validate_token(token):
             print(f"❌ Pairing rejected: Invalid or expired token\n")
             return False
@@ -160,7 +162,7 @@ class PairingWorkflow:
 
         # Consume token
         self.pairing_manager.consume_token(token)
-        
+
         print(f"✅ Device '{peer_device_name}' paired successfully!")
         print(f"   Device ID: {peer_device_id}")
         print(f"   Trust established\n")

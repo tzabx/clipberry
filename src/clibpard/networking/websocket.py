@@ -90,7 +90,9 @@ class WebSocketServer:
             if data.get("type") == Message.HELLO:
                 peer_device_id = data.get("device_id")
                 peer_device_name = data.get("device_name", "Unknown")
-                print(f"👋 Hello received from '{peer_device_name}' ({peer_device_id[:8]}...)")
+                print(
+                    f"👋 Hello received from '{peer_device_name}' ({peer_device_id[:8]}...)"
+                )
                 self._connections[peer_device_id] = websocket
 
                 # Handle messages
