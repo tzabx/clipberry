@@ -4,7 +4,7 @@ import asyncio
 import socket
 from typing import List, Callable, Dict, Any, Optional
 from zeroconf import ServiceInfo, Zeroconf
-from zeroconf.asyncio import AsyncServiceBrowser, AsyncZeroconf
+from zeroconf.asyncio import AsyncServiceBrowser, AsyncZeroconf, AsyncServiceInfo
 
 
 SERVICE_TYPE = "_clibpard._tcp.local."
@@ -82,8 +82,11 @@ class DiscoveryService:
         from zeroconf import ServiceStateChange
 
         if state_change == ServiceStateChange.Added:
-            info = zeroconf.get_service_info(service_type, name)
-            if info:
+            # Use AsyncServiceInfo for async event loop compatibility
+            info = AsyncServiceInfo(service_type, name)
+            await info.async_request(self._azc.zeroconf, 3000)  # 3 second timeout
+            
+            if info and info.addresses:
                 # Parse device info
                 props = {}
                 if info.properties:
