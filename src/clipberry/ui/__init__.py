@@ -451,9 +451,12 @@ class MainWindow(QMainWindow):
         if self._update_in_progress:
             return
 
-        # Create task without asyncSlot to avoid reentrancy issues
-        import asyncio
+        # Use QTimer to avoid reentrancy issues
+        QTimer.singleShot(0, self._start_update_task)
 
+    def _start_update_task(self):
+        """Start update data task safely."""
+        import asyncio
         try:
             asyncio.ensure_future(self._async_update_data())
         except RuntimeError:
@@ -505,10 +508,16 @@ class MainWindow(QMainWindow):
         )
 
         if reply == QMessageBox.Yes:
-            # Clear in background
-            import asyncio
+            # Clear in background using QTimer to avoid reentrancy
+            QTimer.singleShot(0, self._start_clear_task)
 
+    def _start_clear_task(self):
+        """Start clear history task safely."""
+        import asyncio
+        try:
             asyncio.ensure_future(self._clear_history_async())
+        except RuntimeError:
+            pass
 
     async def _clear_history_async(self):
         """Clear clipboard history asynchronously."""
@@ -531,13 +540,16 @@ class MainWindow(QMainWindow):
                 QMessageBox.warning(self, "Error", "Please enter host IP and token")
                 return
 
-            # Connect in background without asyncSlot to avoid reentrancy
-            import asyncio
+            # Connect in background using QTimer to avoid reentrancy
+            QTimer.singleShot(0, lambda: self._start_connect_task(host, port, token))
 
-            try:
-                asyncio.ensure_future(self._connect_to_device(host, port, token))
-            except RuntimeError:
-                pass
+    def _start_connect_task(self, host: str, port: int, token: str):
+        """Start connection task safely."""
+        import asyncio
+        try:
+            asyncio.ensure_future(self._connect_to_device(host, port, token))
+        except RuntimeError:
+            pass
 
     async def _connect_to_device(self, host: str, port: int, token: str):
         """Connect to a device."""
@@ -575,12 +587,16 @@ class MainWindow(QMainWindow):
         )
 
         if reply == QMessageBox.StandardButton.Yes:
-            import asyncio
+            # Revoke in background using QTimer to avoid reentrancy
+            QTimer.singleShot(0, lambda: self._start_revoke_task(device_id))
 
-            try:
-                asyncio.ensure_future(self._revoke_device(device_id))
-            except RuntimeError:
-                pass
+    def _start_revoke_task(self, device_id: str):
+        """Start revoke device task safely."""
+        import asyncio
+        try:
+            asyncio.ensure_future(self._revoke_device(device_id))
+        except RuntimeError:
+            pass
 
     async def _revoke_device(self, device_id: str):
         """Revoke device trust."""
