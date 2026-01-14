@@ -1,5 +1,7 @@
 """Qt UI components."""
 
+from qasync import asyncSlot, asyncClose
+from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import (
     QMainWindow,
     QWidget,
@@ -432,9 +434,13 @@ class MainWindow(QMainWindow):
 
     def _update_data(self):
         """Update UI data from service."""
-        import asyncio
+        # Use QTimer to avoid reentrant task issues
+        QTimer.singleShot(0, self._do_update)
 
-        asyncio.create_task(self._async_update_data())
+    @asyncSlot()
+    async def _do_update(self):
+        """Perform the actual update."""
+        await self._async_update_data()
 
     async def _async_update_data(self):
         """Async update of UI data."""
@@ -465,7 +471,8 @@ class MainWindow(QMainWindow):
             self.service.clipboard_monitor.set_clipboard_image(Path(item.blob_path))
             self.activity_tab.add_log_entry(f"Copied image item to clipboard")
 
-    def _on_add_device(self):
+    @asyncSlot()
+    async def _on_add_device(self):
         """Handle add device request."""
         dialog = AddDeviceDialog(self)
 
@@ -477,9 +484,7 @@ class MainWindow(QMainWindow):
                 return
 
             # Connect in background
-            import asyncio
-
-            asyncio.create_task(self._connect_to_device(host, port, token))
+            await self._connect_to_device(host, port, token)
 
     async def _connect_to_device(self, host: str, port: int, token: str):
         """Connect to a device."""
@@ -507,7 +512,8 @@ class MainWindow(QMainWindow):
         dialog = GenerateTokenDialog(token, self)
         dialog.exec()
 
-    def _on_revoke_device(self, device_id: str):
+    @asyncSlot()
+    async def _on_revoke_device(self, device_id: str):
         """Handle device revocation."""
         reply = QMessageBox.question(
             self,
@@ -517,9 +523,7 @@ class MainWindow(QMainWindow):
         )
 
         if reply == QMessageBox.StandardButton.Yes:
-            import asyncio
-
-            asyncio.create_task(self._revoke_device(device_id))
+            await self._revoke_device(device_id)
 
     async def _revoke_device(self, device_id: str):
         """Revoke device trust."""
