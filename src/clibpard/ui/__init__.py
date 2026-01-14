@@ -1,6 +1,5 @@
 """Qt UI components."""
 
-from qasync import asyncSlot, asyncClose
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import (
     QMainWindow,
@@ -372,6 +371,9 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Clibpard - Clipboard Sync")
         self.resize(800, 600)
 
+        # Flag to prevent concurrent updates
+        self._update_in_progress = False
+
         self._init_ui()
         self._init_menu()
 
@@ -434,16 +436,24 @@ class MainWindow(QMainWindow):
 
     def _update_data(self):
         """Update UI data from service."""
-        # Use QTimer to avoid reentrant task issues
-        QTimer.singleShot(0, self._do_update)
+        # Skip if update already in progress
+        if self._update_in_progress:
+            return
 
-    @asyncSlot()
-    async def _do_update(self):
-        """Perform the actual update."""
-        await self._async_update_data()
+        # Create task without asyncSlot to avoid reentrancy issues
+        import asyncio
+
+        try:
+            asyncio.ensure_future(self._async_update_data())
+        except RuntimeError:
+            pass  # Event loop not running
 
     async def _async_update_data(self):
         """Async update of UI data."""
+        if self._update_in_progress:
+            return
+
+        self._update_in_progress = True
         try:
             # Get items and devices
             items = await self.service.get_recent_items(100)
@@ -459,6 +469,8 @@ class MainWindow(QMainWindow):
 
         except Exception as e:
             print(f"UI update error: {e}")
+        finally:
+            self._update_in_progress = False
 
     def _on_copy_item(self, item: ClipboardItem):
         """Handle copy item request."""
@@ -471,8 +483,7 @@ class MainWindow(QMainWindow):
             self.service.clipboard_monitor.set_clipboard_image(Path(item.blob_path))
             self.activity_tab.add_log_entry(f"Copied image item to clipboard")
 
-    @asyncSlot()
-    async def _on_add_device(self):
+    def _on_add_device(self):
         """Handle add device request."""
         dialog = AddDeviceDialog(self)
 
@@ -483,8 +494,13 @@ class MainWindow(QMainWindow):
                 QMessageBox.warning(self, "Error", "Please enter host IP and token")
                 return
 
-            # Connect in background
-            await self._connect_to_device(host, port, token)
+            # Connect in background without asyncSlot to avoid reentrancy
+            import asyncio
+
+            try:
+                asyncio.ensure_future(self._connect_to_device(host, port, token))
+            except RuntimeError:
+                pass
 
     async def _connect_to_device(self, host: str, port: int, token: str):
         """Connect to a device."""
@@ -512,8 +528,7 @@ class MainWindow(QMainWindow):
         dialog = GenerateTokenDialog(token, self)
         dialog.exec()
 
-    @asyncSlot()
-    async def _on_revoke_device(self, device_id: str):
+    def _on_revoke_device(self, device_id: str):
         """Handle device revocation."""
         reply = QMessageBox.question(
             self,
@@ -523,7 +538,12 @@ class MainWindow(QMainWindow):
         )
 
         if reply == QMessageBox.StandardButton.Yes:
-            await self._revoke_device(device_id)
+            import asyncio
+
+            try:
+                asyncio.ensure_future(self._revoke_device(device_id))
+            except RuntimeError:
+                pass
 
     async def _revoke_device(self, device_id: str):
         """Revoke device trust."""
