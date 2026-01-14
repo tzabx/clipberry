@@ -68,6 +68,8 @@ class WebSocketServer:
     async def _handle_connection(self, websocket: WebSocketServerProtocol, path: str):
         """Handle incoming connection."""
         peer_device_id = None
+        peer_address = websocket.remote_address
+        print(f"\n🔌 Incoming connection from {peer_address[0]}:{peer_address[1]}")
 
         try:
             # Send hello
@@ -87,6 +89,8 @@ class WebSocketServer:
 
             if data.get("type") == Message.HELLO:
                 peer_device_id = data.get("device_id")
+                peer_device_name = data.get("device_name", "Unknown")
+                print(f"👋 Hello received from '{peer_device_name}' ({peer_device_id[:8]}...)")
                 self._connections[peer_device_id] = websocket
 
                 # Handle messages
@@ -215,6 +219,7 @@ class WebSocketClient:
     async def connect_to_device(self, host: str, port: int) -> Optional[str]:
         """Connect to a device. Returns peer device_id if successful."""
         try:
+            print(f"\n🔌 Attempting to connect to {host}:{port}...")
             ssl_context = self.security.get_ssl_context(server=False)
 
             uri = f"wss://{host}:{port}"
@@ -226,6 +231,8 @@ class WebSocketClient:
 
             if data.get("type") == Message.HELLO:
                 peer_device_id = data.get("device_id")
+                peer_device_name = data.get("device_name", "Unknown")
+                print(f"✅ Connected to '{peer_device_name}' ({peer_device_id[:8]}...)")
 
                 # Send our hello
                 await websocket.send(
