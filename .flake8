@@ -1,0 +1,18 @@
+[flake8]
+max-line-length = 100
+extend-ignore = 
+    # Imported but unused (many are used by UI)
+    F401,
+    # Local variable assigned but never used
+    F841,
+    # f-string is missing placeholders
+    F541,
+    # Line break after binary operator
+    W504
+exclude =
+    .git,
+    __pycache__,
+    venv,
+    build,
+    dist,
+    *.egg-info
